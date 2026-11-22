@@ -272,3 +272,37 @@ body.reduce .aurora,body.reduce #particles{display:none}
 @media(min-width:1400px){.app{max-width:1400px}}
 .clock,.chg,.hi{white-space:nowrap}
 @media(max-width:440px){.hide-sm{display:none}.clock{font-size:11px}.price{font-size:24px}.hi{font-size:18px}}
+
+.paw-splash{width:140px;height:140px;filter:drop-shadow(0 0 28px rgba(255,120,170,.55));animation:pawIn 1.4s cubic-bezier(.3,1.6,.5,1) infinite alternate}
+@keyframes pawIn{0%{transform:scale(.85) rotate(-8deg)}100%{transform:scale(1.05) rotate(8deg)}}
+.mini-paw{width:34px;height:34px;filter:drop-shadow(0 0 8px rgba(255,120,170,.5));animation:wiggle 3s ease-in-out infinite}
+@keyframes wiggle{0%,80%,100%{transform:rotate(0)}85%{transform:rotate(-12deg)}90%{transform:rotate(10deg)}95%{transform:rotate(-6deg)}}
+
+/* ---------- Belajar ---------- */
+.learnseg{position:sticky;top:calc(8px + var(--safeT));z-index:3;background:rgba(16,18,26,.85);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);margin:0 0 12px;padding:4px;border-radius:14px}
+.learnseg button{padding:9px 6px;font-size:14px;font-weight:600}
+.lview[hidden]{display:none}
+.ex{background:color-mix(in srgb,var(--acc) 10%,transparent);border-left:3px solid var(--acc);border-radius:10px;padding:10px 12px;margin:10px 0}
+.ex b{display:block;font-size:12px;letter-spacing:1px;text-transform:uppercase;color:var(--acc);margin-bottom:2px}
+.tipbox{background:rgba(255,255,255,.04);border:1px dashed var(--line);border-radius:10px;padding:10px 12px;margin:10px 0;color:#e8eaf2}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:10px 0}
+.cardlet{border-radius:12px;padding:10px 12px;border:1px solid var(--line);background:var(--card2)}
+.cardlet b{font:700 18px var(--mono)} .cardlet p{margin:4px 0 0}
+.cardlet.up{border-color:rgba(47,227,155,.4)} .cardlet.up b{color:var(--up)}
+.cardlet.dn{border-color:rgba(255,93,115,.4)} .cardlet.dn b{color:var(--dn)}
+table.mini{width:100%;border-collapse:collapse;margin:10px 0;font-size:13px}
+table.mini th,table.mini td{padding:7px 8px;border-bottom:1px solid var(--line);text-align:left}
+table.mini th{color:var(--mute);font-weight:600}
+.defs dt{font:700 15px var(--mono);color:var(--acc);margin-top:10px}
+.defs dd{margin:2px 0 0}
+.acc-body ul,.acc-body ol{padding-left:20px} .acc-body li{margin:4px 0}
+.search{width:100%;padding:11px 14px;border-radius:12px;border:1px solid var(--line);background:rgba(0,0,0,.3);outline:none;margin-bottom:10px}
+.search:focus{border-color:var(--acc);box-shadow:0 0 0 3px var(--glow)}
+.glist{display:grid;gap:6px}
+.gi{padding:9px 12px;border-radius:12px;background:var(--card2);border:1px solid var(--line);font-size:14px}
+.gi b{display:block;color:var(--acc);font-size:14px} .gi span{color:#d7dbe6}
+@media(min-width:1000px){
+  #lesson{columns:2;column-gap:16px} #lesson .glass{break-inside:avoid}
+  .glist{grid-template-columns:1fr 1fr}
+  .learnseg{max-width:520px;top:16px}
+}

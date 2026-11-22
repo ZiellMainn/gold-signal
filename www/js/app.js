@@ -520,11 +520,17 @@
   // ---------- Panduan & banner pasang ----------
   window.toast = toast;
   function goTab(name) { const b = document.querySelector(`#nav button[data-tab="${name}"]`); if (b) b.click(); }
+  function showLearn(v) {
+    document.querySelectorAll('#learnSeg button').forEach(b => b.classList.toggle('on', b.dataset.v === v));
+    document.querySelectorAll('.lview').forEach(x => { x.hidden = x.id !== v; if (!x.hidden) { x.classList.remove('stagger'); stagger(x); } });
+  }
   function bindGuide() {
     Guide.render($('guide'));
+    Learn.render($('lesson'), $('gloss'));
+    $('learnSeg').onclick = e => { const v = e.target.closest('button') && e.target.closest('button').dataset.v; if (v) showLearn(v); };
     const ban = $('installBanner');
     ban.hidden = Guide.standalone() || S.guideSeen;
-    $('bBannerGo').onclick = () => { goTab('guide'); Guide.open('install'); };
+    $('bBannerGo').onclick = () => { goTab('guide'); showLearn('guide'); Guide.open('install'); };
     $('bBannerX').onclick = () => { ban.hidden = true; S.guideSeen = true; save(); };
   }
 
