@@ -217,7 +217,7 @@
         const good = e.stage !== 'SL';
         toast(`${good ? '✅' : '🛑'} ${e.dir} ${f2(e.entry)}: ${STAGE_TXT[e.stage]}`, 5000);
         chime(good);
-        if (before === 'RUN' && e.stage === 'TP1') toast('🎯 TP1 kena! Tutup setengah lot & geser SL ke entry.', 6000);
+        if (before === 'RUN' && e.stage === 'TP1') toast(`🎯 TP1 kena! Di MT5, ubah stop loss posisi yang masih terbuka ke harga entry ${f2(e.entry)}.`, 8000);
       }
     }
     if (ch) { saveJ(); renderJournal(); if (A && A.entry && A.entry.stage !== 'RUN') analyse(false); }
@@ -270,13 +270,18 @@
     const { sig, entry, edgeOK, st, T } = A, al = [];
     if (sig && entry) {
       const lotI = Core.lotSize(S.modal, S.risk, entry.risk, S.contract), lot = lotI.lot;
-      const per = entry.risk * S.contract, loss = lot * per, p1 = lot / 2 * per, p2 = lot / 2 * per * 2;
+      const per = entry.risk * S.contract, loss = lot * per;
+      // lot minimal 0,01 per posisi: kalau tidak bisa dibagi dua, pakai 1 posisi saja
+      const lot1 = Math.floor(lot / 2 * 100 + 1e-9) / 100, lot2 = +(lot - lot1).toFixed(2), split = lot1 >= 0.01;
+      const p1 = split ? lot1 * per : 0, p2 = split ? lot2 * per * 2 : lot * per * 2;
+      const lotNote = split ? `MT5: 2 posisi · ${lot1.toFixed(2)} (TP1) + ${lot2.toFixed(2)} (TP2)` : 'MT5: 1 posisi saja, TP = TP2';
+      const t1 = entry.stage === 'TP1' ? 'sudah kena ✓' : split ? `posisi 1 tutup ≈ +${usd(p1)}` : 'jangan tutup, geser SL ke entry';
       $('levels').innerHTML = `<div class="levels">
         <div class="lv en"><span>Entry ${entry.dir}</span><b id="lvE">${f2(entry.entry)}</b><em id="pl">P/L berjalan —</em></div>
-        <div class="lv lot"><span>Ukuran lot</span><b id="lvLot">0.00</b><em>risiko ${S.risk}% = ${usd(S.modal * S.risk / 100)}</em></div>
+        <div class="lv lot"><span>Ukuran lot (total)</span><b id="lvLot">0.00</b><em>${lotNote}</em></div>
         <div class="lv sl"><span>Stop loss · batas rugi</span><b id="lvSL">${f2(entry.stage === 'TP1' ? entry.entry : entry.sl)}</b><em>${entry.stage === 'TP1' ? 'sudah dipindah ke entry (impas)' : `maks rugi ≈ ${usd(-loss)} (${(loss / S.modal * 100).toFixed(2)}%)`}</em></div>
-        <div class="lv tp"><span>TP1 · tutup ½</span><b id="lvT1">${f2(entry.tp1)}</b><em>≈ +${usd(p1)} lalu SL ke entry</em></div>
-        <div class="lv tp" style="grid-column:1/-1"><span>TP2 · tutup sisa</span><b id="lvT2">${f2(entry.tp2)}</b><em>≈ +${usd(p2)} · total kalau sampai TP2 ≈ +${usd(p1 + p2)}</em></div></div>`;
+        <div class="lv tp"><span>TP1</span><b id="lvT1">${f2(entry.tp1)}</b><em>${t1}</em></div>
+        <div class="lv tp" style="grid-column:1/-1"><span>TP2 · target akhir</span><b id="lvT2">${f2(entry.tp2)}</b><em>${split ? `posisi 2 tutup ≈ +${usd(p2)} · total kalau sampai TP2 ≈ +${usd(p1 + p2)}` : `≈ +${usd(p2)} kalau sampai TP2`}</em></div></div>`;
       stagger($('levels').firstElementChild);
       countUp($('lvLot'), lot, 2);
       if (lotI.tooSmall) al.push(['bad', `Modal terlalu kecil untuk risiko ${S.risk}% di ${T.label}: lot minimum 0.01 sudah berisiko ${usd(loss)} (${(loss / S.modal * 100).toFixed(1)}% modal). Pilih akun Cent, timeframe lebih kecil, atau lewati sinyal ini.`]);
