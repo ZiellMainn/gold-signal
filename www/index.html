@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#07080d">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Gold Signal">
+<meta name="description" content="Analisa XAUUSD live: sinyal BUY/SELL dengan stop loss, take profit, dan ukuran lot otomatis.">
+<title>Gold Signal · XAUUSD</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/apple-180.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body data-theme="gold">
+<div class="aurora" aria-hidden="true"><i></i><i></i><i></i></div>
+<canvas id="particles" aria-hidden="true"></canvas>
+
+<div id="splash">
+  <div class="coin"><span>Au</span></div>
+  <div class="splash-title">Gold Signal</div>
+  <div class="splash-sub">membaca pasar emas…</div>
+</div>
+
+<div class="app">
+  <header class="top">
+    <div class="hello">
+      <div class="hi" id="hello">Halo 👋</div>
+      <div class="clock"><span id="clock">--:--:--</span> · <span id="mkt" class="mkt">…</span></div>
+    </div>
+    <div class="pricebox">
+      <div class="sym">XAUUSD <span id="liveDot" class="dot"></span></div>
+      <div class="price" id="price">—</div>
+      <div class="chg" id="chg">&nbsp;</div>
+    </div>
+  </header>
+
+  <div class="sessions" id="sessions"></div>
+
+  <main>
+    <!-- SINYAL -->
+    <section class="tab active" id="tab-signal">
+     <div class="col">
+      <div id="installBanner" class="glass banner" hidden>
+        <div class="b-ic">📲</div>
+        <div><b>Pasang Gold Signal di HP</b><small>Biar bisa dibuka layar penuh kayak aplikasi biasa.</small></div>
+        <button class="btn" id="bBannerGo">Caranya</button><button class="x" id="bBannerX" aria-label="Tutup">✕</button>
+      </div>
+      <div class="glass hero" id="hero">
+        <div class="hero-top">
+          <div class="tfchips" id="tfchips"></div>
+          <div class="ring" title="Waktu sampai candle tutup">
+            <svg viewBox="0 0 40 40"><circle cx="20" cy="20" r="17" class="ring-bg"/><circle cx="20" cy="20" r="17" class="ring-fg" id="ringFg"/></svg>
+            <span id="countdown">--:--</span>
+          </div>
+        </div>
+        <div class="badge-wrap">
+          <div class="radar" id="radar"><i></i></div>
+          <div id="badge" class="badge wait">MEMUAT</div>
+        </div>
+        <p class="hero-text" id="heroText">Mengambil data harga terbaru…</p>
+        <div class="gauge">
+          <svg viewBox="0 0 200 110">
+            <defs><linearGradient id="gg" x1="0" x2="1"><stop offset="0" stop-color="#ff5d73"/><stop offset=".5" stop-color="#ffc857"/><stop offset="1" stop-color="#2fe39b"/></linearGradient></defs>
+            <path d="M20 100 A80 80 0 0 1 180 100" class="g-bg"/>
+            <path d="M20 100 A80 80 0 0 1 180 100" class="g-fg" id="gFg"/>
+            <g id="needle"><line x1="100" y1="100" x2="100" y2="34"/><circle cx="100" cy="100" r="6"/></g>
+          </svg>
+          <div class="g-label"><b id="score">0</b>/8 syarat terpenuhi</div>
+        </div>
+      </div>
+
+      <div id="levels"></div>
+      <div id="alerts"></div>
+     </div>
+     <div class="col">
+      <div class="glass">
+        <h3>Checklist sinyal <small id="ckFor"></small></h3>
+        <div id="checks" class="checks"></div>
+      </div>
+
+      <div class="glass">
+        <h3>Tren tiap timeframe</h3>
+        <div id="mtf" class="mtf"></div>
+      </div>
+     </div>
+    </section>
+
+    <!-- GRAFIK -->
+    <section class="tab" id="tab-chart">
+      <div class="glass chartcard">
+        <div class="chart-head">
+          <h3>Grafik <span id="chartTf"></span></h3>
+          <div class="seg" id="zoom"><button data-n="60">60</button><button data-n="120" class="on">120</button><button data-n="220">220</button></div>
+        </div>
+        <div class="chartbox"><canvas id="chart"></canvas><div id="tip" class="tip"></div></div>
+        <div class="legend"><span class="l e20">EMA20</span><span class="l e50">EMA50</span><span class="l e200">EMA200</span><span class="l sr">Support/Resistance</span><span class="l tr">▲▼ uji historis</span></div>
+      </div>
+      <div class="glass">
+        <h3>Uji historis strategi <small id="btInfo"></small></h3>
+        <div class="stats" id="stats"></div>
+        <canvas id="equity" class="equity"></canvas>
+        <p class="note" id="btNote"></p>
+      </div>
+    </section>
+
+    <!-- ANALISA -->
+    <section class="tab" id="tab-read">
+      <div id="reading"></div>
+    </section>
+
+    <!-- JURNAL -->
+    <section class="tab" id="tab-journal">
+      <div class="glass">
+        <h3>Jurnal akun demo</h3>
+        <p class="note">Setiap sinyal yang muncul dicatat otomatis, lalu hasilnya dipantau dari harga live: kena SL, TP1, atau TP2. Cocokkan dengan hasil di akun demo kamu.</p>
+        <div class="stats" id="jStats"></div>
+      </div>
+      <div id="journal"></div>
+    </section>
+
+    <!-- PANDUAN -->
+    <section class="tab" id="tab-guide"><div id="guide"></div></section>
+
+    <!-- SETELAN -->
+    <section class="tab" id="tab-settings">
+      <div class="glass form">
+        <h3>Kamu</h3>
+        <label>Nama panggilan<input id="sName" maxlength="20" placeholder="mis. Ziel"></label>
+        <label>Tema warna</label>
+        <div class="themes" id="themes"></div>
+      </div>
+      <div class="glass form">
+        <h3>Modal & risiko</h3>
+        <div class="grid2">
+          <label>Modal akun (USD)<input id="sModal" type="number" min="1" step="1" inputmode="decimal"></label>
+          <label>Risiko per trade (%)<input id="sRisk" type="number" min="0.1" max="5" step="0.1" inputmode="decimal"></label>
+          <label>Jenis akun<select id="sAcct"><option value="100">Standard (1 lot = 100 oz)</option><option value="1">Cent (modal ditulis dalam USD)</option></select></label>
+          <label>Spread broker ($)<input id="sSpread" type="number" min="0" step="0.05" inputmode="decimal"></label>
+        </div>
+        <p class="note">Risiko 1% artinya kalau kena stop loss, rugi sekitar 1% modal. Untuk pemula disarankan 0,5–1%.</p>
+      </div>
+      <div class="glass form">
+        <h3>Sumber harga</h3>
+        <p class="note">Grafik diambil dari PAXG (token emas, 1 token = 1 troy ons). Aplikasi menyamakannya ke harga <b>XAUUSD spot</b> asli setiap menit, jadi kamu tidak wajib menyamakan manual.</p>
+        <div class="seg seg-wide" id="syncSeg">
+          <button data-m="auto">Otomatis</button><button data-m="manual">Broker</button><button data-m="off">Mati</button>
+        </div>
+        <p class="note" id="offInfo"></p>
+        <div id="manualBox">
+          <p class="note">Ketik harga XAUUSD yang tampil di MT5 kamu <b>saat ini</b>, lalu tekan Samakan. Paling persis, tapi perlu diulang sesekali.</p>
+          <div class="grid2">
+            <label>Harga broker sekarang<input id="sBroker" type="number" step="0.01" inputmode="decimal" placeholder="mis. 4085.50"></label>
+            <div class="btns"><button id="bSync" class="btn">Samakan</button><button id="bReset" class="btn ghost">Ke otomatis</button></div>
+          </div>
+        </div>
+      </div>
+      <div class="glass form">
+        <h3>Pemberitahuan</h3>
+        <label class="sw"><input type="checkbox" id="sSound"> Bunyi & getar saat sinyal baru</label>
+        <label class="sw"><input type="checkbox" id="sNotif"> Notifikasi (kalau didukung perangkat)</label>
+        <label class="sw"><input type="checkbox" id="sMotion"> Kurangi animasi</label>
+      </div>
+      <div class="glass form">
+        <h3>Data</h3>
+        <button class="btn ghost" id="bClear">Hapus jurnal</button>
+        <p class="note" id="srcInfo"></p>
+      </div>
+      <div class="glass about">
+        <h3>Cara kerja singkat</h3>
+        <ol>
+          <li><b>Tren:</b> EMA50 vs EMA200 menentukan arah. Timeframe di atasnya tidak boleh berlawanan.</li>
+          <li><b>Kekuatan:</b> ADX minimal 20, di bawah itu dianggap sideways.</li>
+          <li><b>Koreksi:</b> harga harus sempat kembali ke EMA20, lalu candle tutup searah tren.</li>
+          <li><b>Momentum:</b> RSI di zona sehat dan searah, histogram MACD menguat.</li>
+          <li><b>Filter berita:</b> ATR di atas 2× rata-rata = tidak ada sinyal.</li>
+          <li><b>Risiko:</b> SL 1,5× ATR. TP1 1R (tutup ½, SL ke entry). TP2 2R. Lot dihitung dari % risiko kamu.</li>
+        </ol>
+        <p class="note warnline">Alat bantu analisa, bukan nasihat keuangan. Tidak ada strategi yang menjamin untung. Pakai akun demo dulu.</p>
+      </div>
+    </section>
+  </main>
+
+  <nav class="bottom" id="nav">
+    <div class="brand"><span class="mini-coin">Au</span><b>Gold Signal</b></div>
+    <button data-tab="signal" class="on"><svg viewBox="0 0 24 24"><path d="M12 2l3 7h7l-5.5 4.5L18 21l-6-4-6 4 1.5-7.5L2 9h7z"/></svg>Sinyal</button>
+    <button data-tab="chart"><svg viewBox="0 0 24 24"><path d="M4 20V10M9 20V4M14 20v-8M19 20V7"/></svg>Grafik</button>
+    <button data-tab="read"><svg viewBox="0 0 24 24"><path d="M4 5h16M4 10h16M4 15h10M4 20h7"/></svg>Analisa</button>
+    <button data-tab="journal"><svg viewBox="0 0 24 24"><path d="M6 3h11l3 3v15H6zM9 9h8M9 13h8M9 17h5"/></svg>Jurnal</button>
+    <button data-tab="guide"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9.5"/><path d="M9.5 9.2a2.6 2.6 0 015 .8c0 1.8-2.5 2.2-2.5 3.8M12 17.2v.3"/></svg>Panduan</button>
+    <button data-tab="settings"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3.2"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1L7 17M17 7l2.1-2.1"/></svg>Setelan</button>
+  </nav>
+  <div id="toast" class="toast"></div>
+</div>
+
+<script src="js/core.js"></script>
+<script src="js/market.js"></script>
+<script src="js/reader.js"></script>
+<script src="js/chart-view.js"></script>
+<script src="js/guide.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,8 @@
+{
+  "appId": "com.goldsignal.xauusd",
+  "appName": "Gold Signal",
+  "webDir": "www",
+  "backgroundColor": "#07080d",
+  "android": { "allowMixedContent": false },
+  "ios": { "contentInset": "never" }
+}
