@@ -117,7 +117,8 @@
       const z = ev.e20 - 0.3 * A;
       plan = `Skenario SELL: tunggu harga naik ke area ${f2(z)}–${f2(ev.e20)} (EMA20), lalu ada candle ${ctx.tfLabel} merah yang tutup di bawah EMA20 dengan RSI turun di 30–55.` +
         (ev.strong ? '' : ' ADX juga harus naik ke atas 20 dulu.') + (ev.htfBias === 1 ? ' Timeframe besar masih naik, jadi SELL belum diizinkan.' : '');
-    } else plan = `Belum ada arah. BUY baru dicari kalau EMA50 naik melewati EMA200 (${f2(ev.e200)}) dan harga di atasnya; SELL kalau kebalikannya.`;
+    } else plan = ev.fast ? `Belum ada arah. BUY baru dicari kalau EMA20 naik melewati EMA50 (${f2(ev.e50)}) dan harga di atasnya; SELL kalau kebalikannya.`
+      : `Belum ada arah. BUY baru dicari kalau EMA50 naik melewati EMA200 (${f2(ev.e200)}) dan harga di atasnya; SELL kalau kebalikannya.`;
     out.push({ icon: '➜', title: 'Yang ditunggu / rencana', html: plan });
 
     // 10. Risiko

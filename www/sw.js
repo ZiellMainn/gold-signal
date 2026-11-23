@@ -1,5 +1,5 @@
 /* Service worker: simpan tampilan aplikasi supaya cepat dibuka. Data harga selalu diambil langsung dari internet. */
-const CACHE = 'gold-signal-v4';
+const CACHE = 'gold-signal-v5';
 const SHELL = ['./', 'index.html', 'css/style.css', 'js/core.js', 'js/market.js', 'js/reader.js', 'js/chart-view.js', 'js/guide.js', 'js/learn.js', 'js/app.js', 'manifest.webmanifest', 'icons/icon-192.png', 'icons/icon-512.png', 'icons/favicon-64.png', 'icons/apple-180.png', 'icons/paw-logo.png'];
 self.addEventListener('install', e => { e.waitUntil(caches.open(CACHE).then(c => c.addAll(SHELL)).then(() => self.skipWaiting())); });
 self.addEventListener('activate', e => {

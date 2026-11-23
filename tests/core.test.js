@@ -88,6 +88,21 @@ test('bias timeframe besar hanya dari candle yang sudah tutup', () => {
   assert.deepStrictEqual(m, [0, 0, 0, 1, 1]);
 });
 
+console.log('Mode cepat:');
+test('mode cepat membaca tren dari EMA20 vs EMA50', () => {
+  for (let i = 300; i < d.length; i += 37) {
+    const e = C.evalAt(d, I, i, Object.assign({}, C.DEF, { trend: 'fast' }));
+    if (!e) continue;
+    assert.strictEqual(e.up.trend, I.e20[i] > I.e50[i] && d[i].c > I.e50[i]);
+    assert.strictEqual(e.dn.trend, I.e20[i] < I.e50[i] && d[i].c < I.e50[i]);
+    assert.strictEqual(e.fast, true);
+  }
+});
+test('mode normal tidak berubah', () => {
+  const e = C.evalAt(d, I, 900);
+  assert.strictEqual(e.up.trend, I.e50[900] > I.e200[900] && d[900].c > I.e200[900]);
+});
+
 console.log('Backtest:');
 test('trade tidak tumpang tindih & R valid', () => {
   const tr = C.backtest(d, I, C.DEF, 0.3);

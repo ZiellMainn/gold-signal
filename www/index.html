@@ -141,6 +141,11 @@
         <div class="themes" id="themes"></div>
       </div>
       <div class="glass form">
+        <h3>Kecepatan baca tren</h3>
+        <div class="seg seg-wide" id="modeSeg"><button data-m="normal">Normal</button><button data-m="fast">⚡ Cepat</button></div>
+        <p class="note"><b>Normal</b>: tren dibaca dari EMA50 vs EMA200. Lebih lambat menangkap pembalikan arah, tapi jarang tertipu.<br><b>Cepat</b>: tren dibaca dari EMA20 vs EMA50, jadi pembalikan arah tertangkap lebih awal. Di uji data asli, <b>Cepat + H4</b> memberi hasil terbaik; di H1 tidak lebih bagus dari Normal.</p>
+      </div>
+      <div class="glass form">
         <h3>Modal & risiko</h3>
         <div class="grid2">
           <label>Modal akun (USD)<input id="sModal" type="number" min="1" step="1" inputmode="decimal"></label>

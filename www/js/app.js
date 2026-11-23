@@ -13,8 +13,9 @@
     get(k, d) { try { const v = localStorage.getItem('gs.' + k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } },
     set(k, v) { try { localStorage.setItem('gs.' + k, JSON.stringify(v)); } catch (e) { } },
   };
-  const S = Object.assign({ name: '', theme: 'gold', modal: 1000, risk: 1, contract: 100, spread: 0.3, tf: '1h', offset: 0, syncMode: 'auto', autoOffset: null, autoAt: 0, sound: true, notif: false, reduce: false, guideSeen: false }, store.get('settings', {}));
+  const S = Object.assign({ name: '', theme: 'gold', modal: 1000, risk: 1, contract: 100, spread: 0.3, tf: '1h', trendMode: 'normal', offset: 0, syncMode: 'auto', autoOffset: null, autoAt: 0, sound: true, notif: false, reduce: false, guideSeen: false }, store.get('settings', {}));
   // selisih harga yang dipakai: otomatis ke XAUUSD spot, manual ke broker, atau tanpa penyesuaian
+  const P = () => Object.assign({}, Core.DEF, { trend: S.trendMode === 'fast' ? 'fast' : 'normal' });
   const off = () => S.syncMode === 'manual' ? S.offset : S.syncMode === 'auto' && Number.isFinite(S.autoOffset) ? S.autoOffset : 0;
   let journal = store.get('journal', []);
   const save = () => store.set('settings', S);
@@ -126,10 +127,10 @@
     let htf = null;
     const hk = T.htf;
     if (hk && DATA[hk]) { const hd = DATA[hk].bars.map(shift), hI = Core.indicators(hd); htf = Core.mapHTF(d, T.ms, hd, Market.TF[hk].ms, Core.biasSeries(hd, hI)); }
-    const ev = Core.evalAt(d, I, L, Core.DEF, htf);
+    const ev = Core.evalAt(d, I, L, P(), htf);
     const status = Market.marketStatus(new Date());
     const stale = status.open && Date.now() - (d[L].t + T.ms) > 2 * T.ms;
-    const trades = Core.backtest(d, I, Core.DEF, S.spread, htf);
+    const trades = Core.backtest(d, I, P(), S.spread, htf);
     const st = Core.stats(trades, S.risk);
     const edgeOK = st.n >= 20 && st.pf >= 1.1;
     const sr = ev ? Core.srLevels(d, ev.atr) : { res: [], sup: [] };
@@ -138,9 +139,9 @@
     // cari sinyal valid di 3 candle terakhir
     let sig = null;
     if (status.open && !stale) for (let k = 0; k < 3; k++) {
-      const i = L - k, e = Core.evalAt(d, I, i, Core.DEF, htf);
+      const i = L - k, e = Core.evalAt(d, I, i, P(), htf);
       if (!e || !e.dir) continue;
-      const lv = Core.levels(e.dir, d[i].c, e.atr), s = e.dir === 'BUY' ? 1 : -1;
+      const lv = Core.levels(e.dir, d[i].c, e.atr, P()), s = e.dir === 'BUY' ? 1 : -1;
       let dead = Math.abs(price - lv.entry) > 0.5 * e.atr;
       for (let j = i + 1; j <= L && !dead; j++) if ((s > 0 && (d[j].l <= lv.sl || d[j].h >= lv.tp1)) || (s < 0 && (d[j].h >= lv.sl || d[j].l <= lv.tp1))) dead = true;
       if (!dead) { sig = { dir: e.dir, i, ev: e, age: k }; break; }
@@ -170,7 +171,7 @@
 
     const mtf = TFK.filter(k => DATA[k]).map(k => {
       const hd = DATA[k].bars.map(shift), hI = Core.indicators(hd);
-      return { k, label: Market.TF[k].label, ev: Core.evalAt(hd, hI, hd.length - 1) };
+      return { k, label: Market.TF[k].label, ev: Core.evalAt(hd, hI, hd.length - 1, P()) };
     });
 
     A = { tf, T, d, I, L, ev, htf, status, stale, trades, st, edgeOK, sr, sig, entry, mtf };
@@ -307,7 +308,7 @@
     const down = ev.bias === 'down', side = down ? ev.dn : ev.up, lbl = down ? 'SELL' : 'BUY', T = A.T;
     const hk = T.htf ? Market.TF[T.htf].label : null;
     const items = [
-      [side.trend, `Tren ${down ? 'turun' : 'naik'}: EMA50 ${down ? 'di bawah' : 'di atas'} EMA200, harga ${down ? 'di bawah' : 'di atas'} EMA200`],
+      [side.trend, ev.fast ? `Tren ${down ? 'turun' : 'naik'} (mode cepat): EMA20 ${down ? 'di bawah' : 'di atas'} EMA50, harga ${down ? 'di bawah' : 'di atas'} EMA50` : `Tren ${down ? 'turun' : 'naik'}: EMA50 ${down ? 'di bawah' : 'di atas'} EMA200, harga ${down ? 'di bawah' : 'di atas'} EMA200`],
       [side.htf, hk ? `Timeframe ${hk} tidak berlawanan arah` : 'Timeframe besar (D1 adalah yang terbesar)'],
       [ev.strong, `Tren cukup kuat: ADX ${ev.adx.toFixed(1)} (minimal 20)`],
       [ev.calm, `Volatilitas normal: ATR $${f2(ev.atr)} (${(ev.atr / ev.atrAvg).toFixed(1)}× rata-rata)`],
@@ -316,7 +317,7 @@
       [side.rsi, `RSI ${ev.rsi.toFixed(1)} di zona sehat dan ${down ? 'turun' : 'naik'}`],
       [side.macd, `Histogram MACD menguat ke arah ${lbl}`],
     ];
-    $('ckFor').textContent = `· dicek untuk ${lbl}${ev.bias === 'flat' ? ' (tren belum jelas)' : ''}`;
+    $('ckFor').textContent = `· dicek untuk ${lbl}${ev.bias === 'flat' ? ' (tren belum jelas)' : ''} · mode ${ev.fast ? 'cepat' : 'normal'}`;
     $('checks').innerHTML = items.map(([ok, t]) => `<div class="ck ${ok ? 'ok' : 'no'}"><i>${ok ? '✓' : '✕'}</i><span>${t}</span></div>`).join('');
     stagger($('checks'));
   }
@@ -466,6 +467,13 @@
         if (k === 'risk' && v > 2) toast('⚠️ Risiko di atas 2% per trade bikin modal cepat habis saat kalah beruntun.', 5000);
       });
     }
+    const modeUI = () => document.querySelectorAll('#modeSeg button').forEach(x => x.classList.toggle('on', x.dataset.m === S.trendMode));
+    modeUI();
+    $('modeSeg').onclick = e => {
+      const m = e.target.dataset.m; if (!m || m === S.trendMode) return;
+      S.trendMode = m; save(); modeUI(); if (A) analyse(true);
+      toast(m === 'fast' ? '⚡ Mode cepat aktif: tren dibaca dari EMA20 vs EMA50.' : 'Mode normal aktif: tren dibaca dari EMA50 vs EMA200.');
+    };
     $('sSound').checked = S.sound; $('sNotif').checked = S.notif; $('sMotion').checked = S.reduce;
     $('sSound').onchange = e => { S.sound = e.target.checked; save(); if (S.sound) chime(true); };
     $('sMotion').onchange = e => { S.reduce = e.target.checked; save(); applySettings(); };

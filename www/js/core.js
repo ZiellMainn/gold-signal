@@ -110,7 +110,7 @@
     return out;
   }
 
-  const DEF = { adxMin: 20, slAtr: 1.5, tp1R: 1, tp2R: 2, volMax: 2.0 };
+  const DEF = { adxMin: 20, slAtr: 1.5, tp1R: 1, tp2R: 2, volMax: 2.0, trend: 'normal' };
 
   function evalAt(d, I, i, P, htf) {
     P = P || DEF;
@@ -122,8 +122,9 @@
     let lo = Infinity, hi = -Infinity;
     for (let k = i - 3; k <= i; k++) { lo = Math.min(lo, d[k].l); hi = Math.max(hi, d[k].h); }
     const hb = htf ? htf[i] : 0;
+    const fast = P.trend === 'fast'; // mode cepat: tren dari EMA20 vs EMA50
     const up = {
-      trend: I.e50[i] > I.e200[i] && x.c > I.e200[i],
+      trend: fast ? I.e20[i] > I.e50[i] && x.c > I.e50[i] : I.e50[i] > I.e200[i] && x.c > I.e200[i],
       htf: !htf || hb !== -1,
       pull: lo <= I.e20[i] + 0.3 * A,
       reclaim: x.c > I.e20[i] && x.c > x.o,
@@ -131,7 +132,7 @@
       macd: I.hist[i] > I.hist[i - 1],
     };
     const dn = {
-      trend: I.e50[i] < I.e200[i] && x.c < I.e200[i],
+      trend: fast ? I.e20[i] < I.e50[i] && x.c < I.e50[i] : I.e50[i] < I.e200[i] && x.c < I.e200[i],
       htf: !htf || hb !== 1,
       pull: hi >= I.e20[i] - 0.3 * A,
       reclaim: x.c < I.e20[i] && x.c < x.o,
@@ -147,7 +148,7 @@
     const bias = up.trend ? 'up' : dn.trend ? 'down' : 'flat';
     const side = bias === 'down' ? dn : up;
     const score = [side.trend, side.htf, strong, calm, side.pull, side.reclaim, side.rsi, side.macd].filter(Boolean).length;
-    return { dir, up, dn, strong, calm, bias, score, htfBias: hb, atr: A, atrAvg: I.atrAvg[i], adx: I.adx[i], pdi: I.pdi[i], mdi: I.mdi[i], rsi: I.rsi[i], rsiPrev: I.rsi[i - 1], hist: I.hist[i], histPrev: I.hist[i - 1], e20: I.e20[i], e50: I.e50[i], e200: I.e200[i], close: x.c };
+    return { dir, up, dn, strong, calm, bias, score, fast, htfBias: hb, atr: A, atrAvg: I.atrAvg[i], adx: I.adx[i], pdi: I.pdi[i], mdi: I.mdi[i], rsi: I.rsi[i], rsiPrev: I.rsi[i - 1], hist: I.hist[i], histPrev: I.hist[i - 1], e20: I.e20[i], e50: I.e50[i], e200: I.e200[i], close: x.c };
   }
 
   function levels(dir, entry, A, P) {
